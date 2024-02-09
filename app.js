@@ -16,6 +16,10 @@ const adminroutes = [
   {path: '/category', routesFile: 'category'},
   {path : '/variant', routesFile: 'variant'}
 ]
+
+const customerRoutes = [
+  {path : '/review', routesFile : 'review'}
+]
 var app = express();
 
 // view engine setup
@@ -42,6 +46,9 @@ adminroutes.forEach((item) => {
   app.use('/admin'+item.path, require('./routes/admin/'+item.routesFile));
 });
 
+customerRoutes.forEach((item) => {
+  app.use('/custmer'+item.path, require('./routes/customer'+item.routesFile));
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

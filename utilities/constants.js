@@ -6,7 +6,8 @@ var constants = {
         otp : 'otps',
         category : 'categorys',
         product : 'product',
-        variant : 'variant'
-    }
+        variant : 'variant',
+        review : 'review'
+     }
 };
 module.exports = constants;
