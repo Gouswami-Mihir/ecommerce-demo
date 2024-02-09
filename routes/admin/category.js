@@ -8,14 +8,6 @@ var adminModel = require('../../Models/admin.model');
 let categoryModel = require('../../Models/category.model');
 let mongoose = require('mongoose');
 
-// router.post('/', helper.authenticateToken, async (req, res) => {
-
-// });
-
-// router.post('/getone', helper.authenticateToken, async (req, res) => {
-
-// });
-
 router.post('/save', helper.authenticateToken, async (req, res) => {
     let { categoryId, categoryName } = req.body;
     if (categoryName && categoryName.trim() != '') {
