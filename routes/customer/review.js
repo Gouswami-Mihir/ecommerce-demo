@@ -8,8 +8,8 @@ let reviewModel = require('../../Models/customer/review.model');
 let custmerModel = require('../../Models/customer.model');
 let mongoose = require('mongoose');
 
-router.post('save', helper.authenticateToken, async (req, res) => {
-    let { reviewId, productId, rating, review } = req.body;
+router.post('/save', helper.authenticateToken, async (req, res) => {
+    let {reviewId, productId, rating, review} = req.body;
     if (req.token && mongoose.Types.ObjectId.isValid(req.token.id)) {
         let primary = MongoConnection.useDb(Constants.DEFAULTDB);
         let customerData = await primary.model(Constants.MODELS.customer, custmerModel).findById(new mongoose.Types.ObjectId(req.token.id)).lean();
@@ -17,21 +17,7 @@ router.post('save', helper.authenticateToken, async (req, res) => {
             if (productId && mongoose.Types.ObjectId.isValid(productId)) {
                 if (rating && rating.trim() != '' && rating >= 0 && rating <= 5) {
                     if (review && review.trim() != '' && review.length <= 300) {
-                        if (reviewId && mongoose.Types.ObjectId.isValid(reviewId) && reviewId.trim() != '') {
-                            let reviewData = await primary.model(Constants.MODELS.review, reviewModel).findById(new mongoose.Types.ObjectId(reviewId)).lean();
-                            if (reviewData && reviewData != null) {
-                                let updateObj = {
-                                    productId: new mongoose.Types.ObjectId(productId),
-                                    rating: rating,
-                                    review: review,
-                                    createBy: new mongoose.Types.ObjectId(req.token.id)
-                                }
-                                await primary.model(Constants.MODELS.review, reviewModel).findByIdAndUpdate(reviewId, updateObj, { returnOriginal: false }).lean();
-                                return responseManager.onSuccess('review update successfully..', 1, res);
-                            } else {
-                                return responseManager.badrequest({ message: 'Invalid review to update review, please try again' }, res);
-                            }
-                        } else {
+                        if(reviewId == ''){
                             let reviewObj = {
                                 productId: new mongoose.Types.ObjectId(productId),
                                 rating: rating,
@@ -41,6 +27,24 @@ router.post('save', helper.authenticateToken, async (req, res) => {
                             }
                             await primary.model(Constants.MODELS.review, reviewModel).create(reviewObj);
                             return responseManager.onSuccess('review add successfully...', 1, res);
+                        }else{
+                            if(reviewId && mongoose.Types.ObjectId.isValid(reviewId)){
+                                let reviewData = await primary.model(Constants.MODELS.review, reviewModel).findById(new mongoose.Types.ObjectId(reviewId)).lean();
+                                if(reviewData && reviewData != null){
+                                    let updateObj = {
+                                             productId: new mongoose.Types.ObjectId(productId),
+                                             rating: rating,
+                                             review: review,
+                                             createBy: new mongoose.Types.ObjectId(req.token.id)
+                                         }
+                                         await primary.model(Constants.MODELS.review, reviewModel).findByIdAndUpdate(reviewId, updateObj, { returnOriginal: false }).lean();
+                                         return responseManager.onSuccess('review update successfully..', 1, res);
+                                }else{
+                                    return responseManager.badrequest({message : 'Invalid review id to update review'}, res);
+                                }
+                            }else{
+                                return responseManager.badrequest({message : 'Invalid review id to update review'}, res);
+                            }
                         }
                     } else {
                         return responseManager.badrequest({ message: 'Invalid review to save review' }, res);
@@ -49,7 +53,7 @@ router.post('save', helper.authenticateToken, async (req, res) => {
                     return responseManager.badrequest({ message: 'Invalid rating to save review' }, res);
                 }
             } else {
-                return responseManager.badrequest({ message: 'Invalid variant for save review' }, res);
+                return responseManager.badrequest({ message: 'Invalid product for save review' }, res);
             }
         } else {
             return responseManager.badrequest({ message: 'Invalid customer to save review' }, res);
@@ -58,7 +62,6 @@ router.post('save', helper.authenticateToken, async (req, res) => {
         return responseManager.badrequest({ message: 'Invalid custome to save review' }, res);
     }
 });
-
 
 router.post('/delete', helper.authenticateToken, async (req, res) => {
     let {reviewId} = req.body;
@@ -75,13 +78,13 @@ router.post('/delete', helper.authenticateToken, async (req, res) => {
                     return responseManager.badrequest({message : 'Invalid review to delete'}, res);
                 }
             }else{
-                return responseManager.badrequest({message : 'Invalid reviewId to delete review'})
+                return responseManager.badrequest({message : 'Invalid reviewId to delete review'}, res);
             }
         }else{
             return responseManager.badrequest({message : 'Invalid customer to delete review'}, res);
         }
     }else{
-        return responseManager.badrequest({message : 'Invalid '})
+        return responseManager.badrequest({message : 'Invalid customer to delete review'},res);
     }
 });
 

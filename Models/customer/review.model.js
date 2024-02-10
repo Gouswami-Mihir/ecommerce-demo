@@ -1,7 +1,7 @@
 let mongoose = require('mongoose');
 let mongoosePaginate = require('mongoose-paginate-v2');
 let reviewSchema = new mongoose.Schema({
-    variantId : {
+    productId : {
         type : mongoose.Types.ObjectId,
         default : null
     },

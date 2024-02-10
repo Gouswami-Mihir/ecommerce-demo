@@ -18,6 +18,7 @@ const adminroutes = [
 ]
 
 const customerRoutes = [
+  {path : '/login', routesFile : 'login'},
   {path : '/review', routesFile : 'review'}
 ]
 var app = express();
@@ -47,7 +48,7 @@ adminroutes.forEach((item) => {
 });
 
 customerRoutes.forEach((item) => {
-  app.use('/custmer'+item.path, require('./routes/customer'+item.routesFile));
+  app.use('/customer'+item.path, require('./routes/customer/'+item.routesFile));
 });
 
 // catch 404 and forward to error handler
