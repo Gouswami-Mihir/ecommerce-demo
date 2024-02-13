@@ -7,7 +7,6 @@ var Constants = require('../../utilities/constants');
 var adminModel = require('../../Models/admin.model');
 let categoryModel = require('../../Models/category.model');
 let productModel = require('../../Models/product.model');
-let variantModel = require('../../Models/variant.model');
 let mongoose = require('mongoose');
 
 
@@ -40,7 +39,7 @@ router.post('/delete', helper.authenticateToken, async (req, res) => {
 });
 
 router.post('/save', helper.authenticateToken, async (req, res) => {
-    let {productId, productname, description} = req.body;
+    let {productId, productname, description} = req.body;   
     if (req.token && mongoose.Types.ObjectId.isValid(req.token.id)) {
         let primary = MongoConnection.useDb(Constants.DEFAULTDB);
         let adminData = await primary.model(Constants.MODELS.admin, adminModel).findById(new mongoose.Types.ObjectId(req.token.id)).lean();
@@ -65,6 +64,7 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                     }else{
                         if(productId && mongoose.Types.ObjectId.isValid(productId)){
                             let productData = await primary.model(Constants.MODELS.product, productModel).findById(new mongoose.Types.ObjectId(productId)).lean();
+                            console.log("productData : ", productData);
                             if(productData && productData != null){
                                 if(productData.productName != productname){
                                     if(checkProductExisting == null){
@@ -78,14 +78,14 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                                         return responseManager.onSuccess('product update successfully...',1,res);
                                     }else{
                                         return responseManager.badrequest({message : 'product already exist, please try again..'}, res);
-                                    }
+                                    }   
                                 }else{
                                     let updateData = {
                                         productName : productname,
                                         description : description,
                                         createBy : new mongoose.Types.ObjectId(req.token.id),
                                         updateAtTimestamps : Date.now()
-                                    }
+                                    }   
                                     let updateProduct = await primary.model(Constants.MODELS.product, productModel).findByIdAndUpdate(productData._id,updateData,{returnOriginal : false}).lean();
                                     return responseManager.onSuccess('product update successfully...',1,res);
                                 }
@@ -108,7 +108,6 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
     } else {
         return responseManager.badrequest({ message: 'Invalid token to add product, please try again' }, res);
     }
-
 });
 
 module.exports = router;

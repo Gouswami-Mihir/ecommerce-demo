@@ -6,7 +6,9 @@ let helper = require('../../utilities/helper');
 let responseManager = require('../../utilities/responseManager');
 let reviewModel = require('../../Models/customer/review.model');
 let custmerModel = require('../../Models/customer.model');
+let productModel = require('../../Models/product.model');
 let mongoose = require('mongoose');
+let async = require('async');
 
 router.post('/save', helper.authenticateToken, async (req, res) => {
     let {reviewId, productId, rating, review} = req.body;
@@ -87,5 +89,43 @@ router.post('/delete', helper.authenticateToken, async (req, res) => {
         return responseManager.badrequest({message : 'Invalid customer to delete review'},res);
     }
 });
+
+router.post('/getall', helper.authenticateToken, async (req, res) => {
+   let {productId} = req.body;
+   if(req.token && mongoose.Types.ObjectId.isValid(req.token.id)){
+    let primary = MongoConnection.useDb(Constants.DEFAULTDB);
+    let customerData = await primary.model(Constants.MODELS.customer, custmerModel).findById(new mongoose.Types.ObjectId(req.token.id)).lean();
+    if(customerData && customerData != null){
+        if(productId && mongoose.Types.ObjectId.isValid(productId)){
+            let productData = await primary.model(Constants.MODELS.product, productModel).findById(new mongoose.Types.ObjectId(productId)).lean();
+            if(productData && productData != null){
+                let allReview = await primary.model(Constants.MODELS.review, reviewModel).find({productId : new mongoose.Types.ObjectId(productId)}).populate({
+                    path : 'createBy' , model : primary.model(Constants.MODELS.customer, custmerModel), select : "fullname"
+                }).select("rating review createdAtTimestamp").lean();
+                async.forEachSeries(allReview, (review, next_review) => {
+                    let date = new Date(review.createdAtTimestamp);
+                    let day = date.getDate();
+                    let month = parseInt(date.getMonth() + 1);
+                    let year = date.getFullYear();
+                    let formate = day + '/' + month + '/' +year;
+                    review.date = formate;
+                    next_review();
+                },() => {
+                    return responseManager.onSuccess('review details..',allReview, res);
+                });
+            }else{
+                return responseManager.badrequest({message : 'Invalid productId to get review..'}, res);
+            }
+        }else{
+            return responseManager.badrequest({message : 'Invalid productId to get review...!'}, res);
+        }
+    }else{
+        return responseManager.badrequest({message : 'invalid token to get review...!'}, res);
+    }
+   }else{
+    return responseManager.badrequest({message : 'Invalid token to get review...!'}, res);
+   }
+});
+
 
 module.exports = router;
