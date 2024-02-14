@@ -7,7 +7,8 @@ var constants = {
         category : 'categorys',
         product : 'product',
         variant : 'variant',
-        review : 'review'
+        review : 'review',
+        cart : 'carts'
      }
 };
 module.exports = constants;

@@ -127,5 +127,4 @@ router.post('/getall', helper.authenticateToken, async (req, res) => {
    }
 });
 
-
 module.exports = router;

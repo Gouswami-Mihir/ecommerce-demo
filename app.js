@@ -19,7 +19,8 @@ const adminroutes = [
 
 const customerRoutes = [
   {path : '/login', routesFile : 'login'},
-  {path : '/review', routesFile : 'review'}
+  {path : '/review', routesFile : 'review'},
+  {path : '/cart', routesFile : 'cart'}
 ]
 var app = express();
 

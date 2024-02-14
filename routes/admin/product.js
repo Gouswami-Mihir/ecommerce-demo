@@ -5,7 +5,6 @@ var helper = require('../../utilities/helper');
 var MongoConnection = require('../../utilities/connection');
 var Constants = require('../../utilities/constants');
 var adminModel = require('../../Models/admin.model');
-let categoryModel = require('../../Models/category.model');
 let productModel = require('../../Models/product.model');
 let mongoose = require('mongoose');
 
@@ -64,7 +63,6 @@ router.post('/save', helper.authenticateToken, async (req, res) => {
                     }else{
                         if(productId && mongoose.Types.ObjectId.isValid(productId)){
                             let productData = await primary.model(Constants.MODELS.product, productModel).findById(new mongoose.Types.ObjectId(productId)).lean();
-                            console.log("productData : ", productData);
                             if(productData && productData != null){
                                 if(productData.productName != productname){
                                     if(checkProductExisting == null){
